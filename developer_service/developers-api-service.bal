@@ -1,5 +1,4 @@
 import  ballerina/http;
-import ballerina/io;
 
 listener  http:Listener  ep0  = new (8085);
 
@@ -13,8 +12,12 @@ listener  http:Listener  ep0  = new (8085);
                                                                                                  Developer  body; |}|
 Error {
         Developer dev1 = {name: "Jane Doe"};
-            io:println(dev1);
-            return dev1;
+        record {| 
+            *http:Created; 
+            Developer body; 
+        |} response = {body: dev1};
+
+        return response;
     }
 
 //     resource function post developers(@http:Payload{} Developer payload) returns record {| *http:Created; 

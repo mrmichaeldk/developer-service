@@ -8,15 +8,14 @@ listener  http:Listener  ep0  = new (8085);
 // Developers|Error {
 //     }
     
-    resource function post developers(@http:Payload{} Developer payload) returns record {| *http:Created; 
+    resource function post developers(@http:Payload{} Developer payload) returns record {| readonly http:StatusCreated status = new;  
                                                                                                  Developer  body; |}|
 Error {
-        Developer dev1 = {name: "Jane Doe"};
-        record {| 
-            *http:Created; 
+        Developer dev1 = {id: "123", name: "Jane Doe"};
+        record {|
+            readonly http:StatusCreated status = new;
             Developer body; 
         |} response = {body: dev1};
-
         return response;
     }
 

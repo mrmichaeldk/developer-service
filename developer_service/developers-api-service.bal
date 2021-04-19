@@ -1,9 +1,9 @@
 import ballerina/http;
-// import ballerina/sql;
-// import ballerinax/java.jdbc;
+import ballerinax/mysql;
 
 listener http:Listener  ep0  = new (8085);
 
+mysql:Client devDBClient = check new ("localhost", "root", "password","dev_db", 3306);
 // jdbc:Client devDBClient = new jdbc:Client();
 
 service /v1 on ep0  {

@@ -1,7 +1,10 @@
 # Developer Service
 
   Ballerina based developer service.
+
+**How to run :** 
   
+  Execute `ballerina run developer-service`
 
 **Steps followed to build :** 
 
@@ -57,3 +60,7 @@ ERROR [developers-api-service.bal:(3:61,3:70)] undefined symbol 'localhost'
 error: compilation contains errors
 
 
+TODO : 
+ - move configurations to Config.toml
+ - error handling
+ - deploy to GCP

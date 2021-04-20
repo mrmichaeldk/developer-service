@@ -8,4 +8,14 @@ org = "ballerinax"
 name = "mysql"
 version = "0.7.0-alpha7"
 
+[[dependency]]
+org = "ballerina"
+name = "io"
+version = "0.6.0-alpha7"
+
+[[dependency]]
+org = "ballerina"
+name = "sql"
+version = "0.6.0-alpha7"
+
 

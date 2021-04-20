@@ -5,7 +5,7 @@ type  Error record  {
 
 type  Developer record  { 
     string  id?;
-    string  name?;
+    string  name;
     string  team?;
     string[]  skils?;
     string  createdAt?;

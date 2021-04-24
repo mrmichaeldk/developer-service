@@ -12,3 +12,8 @@ version = "8.0.23"
 path = "../lib/mysql-connector-java-8.0.23.jar"
 groupId = "mysql"
 
+# [[platform.java11.dependency]]
+# artifactId = "mongo-java-driver"
+# version = "3.12.8"
+# path = "../lib/mongo-java-driver-3.12.8.jar"
+# groupId = "org.mongodb"

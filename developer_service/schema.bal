@@ -13,6 +13,6 @@ type  Developer record  {
 };
 
 type  Developers record  { 
-    boolean  hasNext?;
+    boolean hasNext?;
     Developer[]  items?;
 };

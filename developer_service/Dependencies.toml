@@ -18,4 +18,9 @@ org = "ballerina"
 name = "sql"
 version = "0.6.0-alpha7"
 
+[[dependency]]
+org = "ballerinax"
+name = "mongodb"
+version = "2.0.5"
+
 

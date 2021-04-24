@@ -16,7 +16,7 @@ mongodb:ClientConfig mongoConfig = {
     port: 27017,
     username: "api_user",
     password: "api1234",
-    options: {sslEnabled: false, serverSelectionTimeout: 5000}
+    options: {authSource: "developer_db", sslEnabled: false, serverSelectionTimeout: 5000}
 };
 
 mysql:Client devDBClient = check new ("localhost", "root", "password","dev_db", 3306);
@@ -25,7 +25,7 @@ service /api/v1 on ep0  {
     
     resource function get developers(string? name, string? team, int? page, int? pageSize, string? sort) returns Developers|Error {
         io:println("name=", name, ", team=", team, ", page=", page, ", pageSize=", pageSize, ", sort=", sort);
-        
+    
         sql:ParameterizedQuery searchQuery = `SELECT * from developer WHERE name = ${name}`;
         stream<record{}, sql:Error> resultStream = devDBClient->query(searchQuery);
 

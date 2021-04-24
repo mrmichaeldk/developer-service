@@ -62,5 +62,8 @@ error: compilation contains errors
 
 TODO : 
  - move configurations to Config.toml
+ - mongodb
  - error handling
  - deploy to GCP
+ - env property management
+ - tests

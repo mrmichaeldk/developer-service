@@ -1,15 +1,10 @@
 import ballerina/http;
 import ballerina/io;
-import ballerina/sql;
+import developer_service.model;
 import ballerinax/mongodb;
-import ballerinax/mysql;
+// import ballerina/log;
 
-// configurable int port = ?; //  TODO:error: value not provided for required configurable variable 'port
-// configurable string host = ?;
-// configurable string username = ;?
-// configurable string password = ?;
-
-listener http:Listener ep0  = new (8085);
+configurable int port = ?;
 
 mongodb:ClientConfig mongoConfig = {
     host: "localhost",
@@ -19,33 +14,37 @@ mongodb:ClientConfig mongoConfig = {
     options: {authSource: "developer_db", sslEnabled: false, serverSelectionTimeout: 5000}
 };
 
-mysql:Client devDBClient = check new ("localhost", "root", "password","dev_db", 3306);
+# A service representing a network-accessible API
+# bound to absolute path `/hello` and port `9090`.
+service /api/v1 on new http:Listener(port) {
 
-service /api/v1 on ep0  {
-    
-    resource function get developers(string? name, string? team, int? page, int? pageSize, string? sort) returns Developers|Error {
-        io:println("name=", name, ", team=", team, ", page=", page, ", pageSize=", pageSize, ", sort=", sort);
-    
-        sql:ParameterizedQuery searchQuery = `SELECT * from developer WHERE name = ${name}`;
-        stream<record{}, sql:Error> resultStream = devDBClient->query(searchQuery);
+    resource function get developers(string? name, string? team, int? page, int? pageSize, string? sort) returns model:Developers|model:Error {
+        // map<json> queryString = {"name": "connectors" };
 
-        Developer[] developerList = [];
+        mongodb:Client mongoClient = checkpanic new (mongoConfig, "developer_db");
+        map<json>[] jsonRet = checkpanic mongoClient->find("developers",(),());
 
-        error? e = resultStream.forEach(function(record{} developer) {
-            io:println("developer Id: ", developer);
-            developerList.push(<Developer> developer);
-        });
+        // io:print("Returned documents '" + jsonRet.toString() + "'.");
+        model:Developer[] devList = [];
+        foreach var j in jsonRet {
+            io:println("Fruit: ", j["123"].toString());
+            devList.push({
+                name: (j["123"]).toString()
+            });
+        }
 
-        Developers developers = {
-            items: developerList
+        
+
+        model:Developers developers = {
+            items: devList
         };
         return developers;
 
     }
 
-    resource function post developers(@http:Payload{} Developer payload) 
-            returns record {| readonly http:StatusCreated status; Developer body; |}|Error {
-        Developer input = payload;
+    resource function post developers(@http:Payload{} model:Developer payload) 
+            returns record {| readonly http:StatusCreated status; model:Developer body; |}|model:Error {
+        model: Developer input = payload;
         // io:println(port);
         // io:println(input.name);
 
@@ -74,12 +73,12 @@ service /api/v1 on ep0  {
 
         record {|
             readonly http:StatusCreated status = new;
-            Developer body; 
+            model:Developer body; 
         |} response = {body: input};
         return response;
 
     }
-    
+
     // resource  function  get  developers/[string  developerId]()  returns  string|Error {
     // }
     //     resource  function  delete  developers/[string  developerId]()  returns  http:Ok|Error {

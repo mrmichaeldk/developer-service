@@ -1,9 +1,0 @@
-port = 8085
-host = "localhost"
-
-# [[mongodb]]
-
-# port = 27017
-# username = "api_user"
-# password = "api1234"
-

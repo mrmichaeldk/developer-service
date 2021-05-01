@@ -4,11 +4,6 @@ name = "http"
 version = "1.1.0-alpha7"
 
 [[dependency]]
-org = "ballerinax"
-name = "mysql"
-version = "0.7.0-alpha7"
-
-[[dependency]]
 org = "ballerina"
 name = "io"
 version = "0.6.0-alpha7"

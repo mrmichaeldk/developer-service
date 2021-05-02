@@ -4,14 +4,23 @@ import developer_service.model;
 import ballerinax/mongodb;
 // import ballerina/log;
 
+type MongoDbConfig record {|
+    string host;
+    int port;
+    string username;
+    string password;
+    string authSource;
+|};
+
 configurable int port = ?;
+configurable MongoDbConfig & readonly mongodb = ?;
 
 mongodb:ClientConfig mongoConfig = {
-    host: "localhost",
-    port: 27017,
-    username: "api_user",
-    password: "api1234",
-    options: {authSource: "developer_db", sslEnabled: false, serverSelectionTimeout: 5000}
+    host: mongodb.host,
+    port: mongodb.port,
+    username: mongodb.username,
+    password: mongodb.password,
+    options: {authSource: mongodb.authSource, sslEnabled: false, serverSelectionTimeout: 5000}
 };
 
 # A service representing a network-accessible API

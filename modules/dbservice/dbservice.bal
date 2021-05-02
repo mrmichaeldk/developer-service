@@ -1,3 +1,4 @@
+import ballerina/log;
 import ballerina/time;
 import ballerina/uuid;
 import ballerinax/mongodb;
@@ -21,6 +22,32 @@ mongodb:ClientConfig mongoConfig = {
     options: {authSource: mongodb.authSource, sslEnabled: false, serverSelectionTimeout: 5000}
 };
 
+public function getDevelopers() returns model:Developers { // TODO |error
+    mongodb:Client mongoClient = checkpanic new (mongoConfig, "developer_db");
+    log:printInfo("------------------ Querying Data -------------------");
+    map<json>[] jsonDevelopers = checkpanic mongoClient->find("developers", (), ());
+    log:printInfo("Returned documents '" + jsonDevelopers.toString() + "'.");
+    mongoClient->close();
+    
+    model:Developer[] devList = [];
+    foreach var devJson in jsonDevelopers {
+        // TODO : remove _id
+        model:Developer|error dev = devJson.cloneWithType(model:Developer);
+        if (dev is model:Developer) {
+            log:printDebug(dev.toBalString());
+            devList.push(dev);
+        }
+    }
+    model:Developers developers = {
+        items: devList
+    };
+    return developers;
+}
+
+# Create a developer.
+#
+# + developer - developer
+# + return -  created developer with created timestamp and id
 public function createDeveloper(model:Developer developer) returns model:Developer { // TODO |error
     string createdAt = time:utcToString(time:utcNow());
     map<json> developerJson = {
@@ -33,6 +60,7 @@ public function createDeveloper(model:Developer developer) returns model:Develop
     };
     mongodb:Client mongoClient = checkpanic new (mongoConfig, "developer_db");
     checkpanic mongoClient->insert(developerJson, "developers");
+    mongoClient->close();
     
     model:Developer|error createdDeveloper = developerJson.cloneWithType(model:Developer);
     if (createdDeveloper is model:Developer) {

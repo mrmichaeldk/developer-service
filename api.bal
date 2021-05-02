@@ -8,25 +8,7 @@ configurable int port = ?;
 service /api/v1 on new http:Listener(port) {
 
     resource function get developers(string? name, string? team, int? page, int? pageSize, string? sort) returns model:Developers|model:Error {
-        // mongodb:Client mongoClient = checkpanic new (mongoConfig, "developer_db");
-        // map<json>[] jsonRet = checkpanic mongoClient->find("developers",(),());
-
-        // // io:print("Returned documents '" + jsonRet.toString() + "'.");
-        model:Developer[] devList = [];
-        // foreach var j in jsonRet {
-        //     io:println("Fruit: ", j["123"].toString());
-        //     devList.push({
-        //         name: (j["123"]).toString()
-        //     });
-        // }
-
-        
-
-        model:Developers developers = {
-            items: devList
-        };
-        return developers;
-
+        return dbservice:getDevelopers();
     }
 
     resource function post developers(@http:Payload{} model:Developer payload) 

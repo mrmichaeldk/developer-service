@@ -31,12 +31,12 @@ service /api/v1 on new http:Listener(port) {
 
     resource function post developers(@http:Payload{} model:Developer payload) 
             returns record {| readonly http:StatusCreated status; model:Developer body; |}|model:Error {
-        dbservice:createDeveloper(payload);
+        model:Developer createdDeveloper = dbservice:createDeveloper(payload);
 
         record {|
             readonly http:StatusCreated status = new;
             model:Developer body; 
-        |} response = {body: payload};
+        |} response = {body: createdDeveloper};
         return response;
 
     }

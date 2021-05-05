@@ -1,4 +1,5 @@
 import ballerina/log;
+import ballerina/io;
 import ballerina/time;
 import ballerina/uuid;
 import ballerinax/mongodb;
@@ -26,21 +27,24 @@ public function getDevelopers() returns model:Developers { // TODO |error
     mongodb:Client mongoClient = checkpanic new (mongoConfig, "developer_db");
     log:printInfo("------------------ Querying Data -------------------");
     map<json>[] jsonDevelopers = checkpanic mongoClient->find("developers", (), ());
-    log:printInfo("Returned documents '" + jsonDevelopers.toString() + "'.");
+    // log:printInfo("Returned documents '" + jsonDevelopers.toString() + "'.");
     mongoClient->close();
     
     model:Developer[] devList = [];
     foreach var devJson in jsonDevelopers {
-        // TODO : remove _id
-        model:Developer|error dev = devJson.cloneWithType(model:Developer);
+        json id = devJson.remove("_id");
+        model:Developer|error dev = devJson.fromJsonWithType(model:Developer);
         if (dev is model:Developer) {
-            log:printDebug(dev.toBalString());
-            devList.push(dev);
+            devList.push(dev);  
+        } else {
+            error err = dev;
+            log:printError(err.message());
         }
     }
     model:Developers developers = {
         items: devList
     };
+    io:println(devList);
     return developers;
 }
 
@@ -49,15 +53,20 @@ public function getDevelopers() returns model:Developers { // TODO |error
 # + developer - developer
 # + return -  created developer with created timestamp and id
 public function createDeveloper(model:Developer developer) returns model:Developer { // TODO |error
+    map<json> developerJson = developer;
+     
     string createdAt = time:utcToString(time:utcNow());
-    map<json> developerJson = {
-        id: uuid:createType1AsString(),
-        name: developer.name,
-        team: developer["team"],
-        skills: developer["skills"],
-        createdAt: createdAt,
-        updatedAt: createdAt
-    };
+    developerJson["id"] = uuid:createType1AsString();
+    developerJson["createdAt"] = createdAt;
+    developerJson["updatedAt"] = createdAt;
+    // map<json> developerJson = {
+    //     id: uuid:createType1AsString(),
+    //     name: developer.name,
+    //     team: developer["team"],
+    //     skills: developer["skills"],
+    //     createdAt: createdAt,
+    //     updatedAt: createdAt
+    // };
     mongodb:Client mongoClient = checkpanic new (mongoConfig, "developer_db");
     checkpanic mongoClient->insert(developerJson, "developers");
     mongoClient->close();

@@ -1,7 +1,17 @@
 import ballerina/http;
 import developer_service.model;
 import developer_service.dbservice;
-// import ballerina/log;
+// import ballerina/io;
+
+// type Rec record {|
+//     string[] arr?;
+// |};
+
+// public function main() {
+//     Rec f = {arr: ["hello", "world"]};
+//     map<json> j = f;
+//     io:print(j);
+// }
 
 configurable int port = ?;
 

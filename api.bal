@@ -35,11 +35,15 @@ service /api/v1 on new http:Listener(port) {
     resource function get developers/[string developerId]() returns string|model:Error {
         model:Developer|model:Error dev = dbservice:getDeveloper(developerId);
         return dev;
-
-    // resource function delete developers/[string developerId]() returns http:Ok|Error {
-
-
     }
+    // resource function delete developers/[string developerId]() returns http:Ok|model:Error {
+    //     boolean|model:Error deleteResults = dbservice:deleteDeveloper(developerId);
+    //     if (deleteResults is model:Error) {
+    //         return deleteResults;
+    //     } else {
+    //         return http:Ok;
+    //     }
+    // }
     //     resource  function  patch  developers/[string  developerId](@http:Payload  {} Developer  payload)  returns  
     // Developer|Error {
     // }

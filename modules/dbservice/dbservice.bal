@@ -75,11 +75,11 @@ public function createDeveloper(model:Developer developer) returns model:Develop
 public function getDeveloper(string developerId) returns model:Developers|model:Error { // TODO |error
     mongodb:Client mongoClient = checkpanic new (mongoConfig, mongodb.dbName);
 
-    map<json> searchString = {"id": developerId };
-    map<json>[] searchResults = checkpanic mongoClient->find(mongodb.collection, (), searchString);
+    map<json> searchQuery = {"id": developerId };
+    map<json>[] searchResults = checkpanic mongoClient->find(mongodb.collection, (), searchQuery);
     mongoClient->close();
 
-    if (searchResults.length() > 0) {
+    if (searchResults.length() == 0) {
         model:Error err = {
             errorType: "Not Found" //return 404
         };
@@ -87,13 +87,28 @@ public function getDeveloper(string developerId) returns model:Developers|model:
     }
     map<json> devJson = searchResults[0];
     json id = devJson.remove("_id");
-    io:print(id);
 
-    // log:printDebug("Found developer by id ", id.toString());
+    log:printDebug("Found developer by id ");
 
     model:Developer|error dev = devJson.fromJsonWithType(model:Developer);
     if (dev is model:Developer) {
         return dev;
+    } else {
+        model:Error err = {
+            errorType: "Error"
+        };
+        return err;
+    }
+}
+
+public function deleteDeveloper(string developerId) returns boolean|model:Error { // TODO |error
+    mongodb:Client mongoClient = checkpanic new (mongoConfig, mongodb.dbName);
+
+    map<json> deleteQuery = {"id": developerId };
+    int deleteResults = checkpanic mongoClient->delete(mongodb.collection, (), deleteQuery);
+    mongoClient->close();
+    if (deleteResults > 0) {
+        return true;
     } else {
         model:Error err = {
             errorType: "Error"

@@ -30,13 +30,16 @@ service /api/v1 on new http:Listener(port) {
             model:Developer body; 
         |} response = {body: createdDeveloper};
         return response;
-
     }
 
-    // resource  function  get  developers/[string  developerId]()  returns  string|Error {
-    // }
-    //     resource  function  delete  developers/[string  developerId]()  returns  http:Ok|Error {
-    // }
+    resource function get developers/[string developerId]() returns string|model:Error {
+        model:Developer|model:Error dev = dbservice:getDeveloper(developerId);
+        return dev;
+
+    // resource function delete developers/[string developerId]() returns http:Ok|Error {
+
+
+    }
     //     resource  function  patch  developers/[string  developerId](@http:Payload  {} Developer  payload)  returns  
     // Developer|Error {
     // }

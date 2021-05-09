@@ -7,3 +7,5 @@ port = 27017
 username = "api_user"
 password = "api1234"
 authSource = "developer_db"
+dbName = "developer_db"
+collection = "developers"

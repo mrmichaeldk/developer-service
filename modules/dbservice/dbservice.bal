@@ -11,6 +11,8 @@ type MongoDbConfigNew record {|
     string username;
     string password;
     string authSource;
+    string dbName;
+    string collection;
 |};
 
 configurable MongoDbConfigNew & readonly mongodb = ?;
@@ -24,10 +26,9 @@ mongodb:ClientConfig mongoConfig = {
 };
 
 public function getDevelopers() returns model:Developers { // TODO |error
-    mongodb:Client mongoClient = checkpanic new (mongoConfig, "developer_db");
-    log:printInfo("------------------ Querying Data -------------------");
-    map<json>[] jsonDevelopers = checkpanic mongoClient->find("developers", (), ());
-    // log:printInfo("Returned documents '" + jsonDevelopers.toString() + "'.");
+    mongodb:Client mongoClient = checkpanic new (mongoConfig, mongodb.dbName);
+    log:printDebug("------------------ Querying Data -------------------");
+    map<json>[] jsonDevelopers = checkpanic mongoClient->find(mongodb.collection, (), ());
     mongoClient->close();
     
     model:Developer[] devList = [];
@@ -59,16 +60,8 @@ public function createDeveloper(model:Developer developer) returns model:Develop
     developerJson["id"] = uuid:createType1AsString();
     developerJson["createdAt"] = createdAt;
     developerJson["updatedAt"] = createdAt;
-    // map<json> developerJson = {
-    //     id: uuid:createType1AsString(),
-    //     name: developer.name,
-    //     team: developer["team"],
-    //     skills: developer["skills"],
-    //     createdAt: createdAt,
-    //     updatedAt: createdAt
-    // };
-    mongodb:Client mongoClient = checkpanic new (mongoConfig, "developer_db");
-    checkpanic mongoClient->insert(developerJson, "developers");
+    mongodb:Client mongoClient = checkpanic new (mongoConfig, mongodb.dbName);
+    checkpanic mongoClient->insert(developerJson, mongodb.collection);
     mongoClient->close();
     
     model:Developer|error createdDeveloper = developerJson.cloneWithType(model:Developer);
@@ -77,4 +70,34 @@ public function createDeveloper(model:Developer developer) returns model:Develop
     }
     model:Developer emptyDev = {name : "x"}; // TODO: hanndle error return model:Error?
     return emptyDev;
+}
+
+public function getDeveloper(string developerId) returns model:Developers|model:Error { // TODO |error
+    mongodb:Client mongoClient = checkpanic new (mongoConfig, mongodb.dbName);
+
+    map<json> searchString = {"id": developerId };
+    map<json>[] searchResults = checkpanic mongoClient->find(mongodb.collection, (), searchString);
+    mongoClient->close();
+
+    if (searchResults.length() > 0) {
+        model:Error err = {
+            errorType: "Not Found" //return 404
+        };
+        return err;
+    }
+    map<json> devJson = searchResults[0];
+    json id = devJson.remove("_id");
+    io:print(id);
+
+    // log:printDebug("Found developer by id ", id.toString());
+
+    model:Developer|error dev = devJson.fromJsonWithType(model:Developer);
+    if (dev is model:Developer) {
+        return dev;
+    } else {
+        model:Error err = {
+            errorType: "Error"
+        };
+        return err;
+    }
 }

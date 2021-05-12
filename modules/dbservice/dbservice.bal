@@ -101,7 +101,7 @@ public function getDeveloper(string developerId) returns model:Developers|model:
     }
 }
 
-public function deleteDeveloper(string developerId) returns boolean|model:Error { // TODO |error
+public function deleteDeveloper(string developerId) returns boolean|model:Error {
     mongodb:Client mongoClient = checkpanic new (mongoConfig, mongodb.dbName);
 
     map<json> deleteQuery = {"id": developerId };
@@ -111,8 +111,35 @@ public function deleteDeveloper(string developerId) returns boolean|model:Error 
         return true;
     } else {
         model:Error err = {
-            errorType: "Error"
+            errorType: "Not Found"
         };
         return err;
+    }
+}
+
+public function patchDeveloper(string developerId, model:Developer developer) returns model:Developer|model:Error {
+    mongodb:Client mongoClient = checkpanic new (mongoConfig, mongodb.dbName);
+
+    map<json> updateQuery = {"id": developerId };
+
+    model:Developer|model:Error existingCustomer = getDeveloper(developerId);
+    if (existingCustomer is  model:Developer) {
+        map<json> newDeveloperJson = developer;
+        newDeveloperJson["updatedAt"] = time:utcToString(time:utcNow());
+        newDeveloperJson["createdAt"] = existingCustomer["createdAt"];
+        newDeveloperJson["id"] = developerId;
+        
+        int updatedCount = checkpanic mongoClient->update(newDeveloperJson, mongodb.collection, (), updateQuery, false);
+        mongoClient->close();
+        
+        if (updatedCount > 0 ) {
+            log:printInfo("Modified count with another filter: '" + updatedCount.toString() + "'.") ;
+        } else {
+            log:printInfo("Nothing modified with another filter."); //TODO: update logs
+        }
+        return  developer;
+        }
+    else {
+        return existingCustomer;
     }
 }

@@ -3,4 +3,29 @@ org = "ballerinax"
 name = "mongodb"
 version = "2.0.7"
 
+[[dependency]]
+org = "ballerina"
+name = "http"
+version = "1.1.0-alpha8"
+
+[[dependency]]
+org = "ballerina"
+name = "io"
+version = "0.6.0-alpha8"
+
+[[dependency]]
+org = "ballerina"
+name = "log"
+version = "1.1.0-alpha8"
+
+[[dependency]]
+org = "ballerina"
+name = "time"
+version = "2.0.0-alpha9"
+
+[[dependency]]
+org = "ballerina"
+name = "uuid"
+version = "0.10.0-alpha8"
+
 

@@ -18,13 +18,12 @@ configurable int port = ?;
 service /api/v1 on new http:Listener(port) {
 
     resource function get developers(string? name, string? team, int? page, int? pageSize, string? sort) returns model:Developers|model:Error {
-        return dbservice:getDevelopers();
+        return dbservice:getDevelopers(name, team, page, pageSize, sort);
     }
 
     resource function post developers(@http:Payload{} model:Developer payload) 
             returns record {| readonly http:StatusCreated status; model:Developer body; |}|model:Error {
         model:Developer createdDeveloper = dbservice:createDeveloper(payload);
-
         record {|
             readonly http:StatusCreated status = new;
             model:Developer body; 

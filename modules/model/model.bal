@@ -13,7 +13,7 @@ public type Developer record  {|
     string[]  skills?;
     string  createdAt?;
     string  updatedAt?;
-    json ...; //json rest descriptor.
+    json ...; //rest parameter
 |};
 
 public type Developers record  { 

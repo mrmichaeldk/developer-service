@@ -1,8 +1,8 @@
 import ballerina/log;
-import ballerina/io;
 import ballerina/time;
 import ballerina/uuid;
 import ballerinax/mongodb;
+import developer_service.utils;
 import developer_service.model;
 
 type MongoDbConfigNew record {|
@@ -25,10 +25,25 @@ mongodb:ClientConfig mongoConfig = {
     options: {authSource: mongodb.authSource, sslEnabled: false, serverSelectionTimeout: 5000}
 };
 
-public function getDevelopers() returns model:Developers { // TODO |error
+public function getDevelopers(string? name, string? team, int? page, int? pageSize, string? sort) returns model:Developers { // TODO |error
+    log:printDebug("Looking for developers..");
+
+    map<json> searchQuery = utils:getDeveloperSearchQuery(name, team);
+    map<json> sortQuery = utils:getDeveloperSortQuery(sort);
+
+    log:printDebug("Search query : " + searchQuery.toJsonString());
+    log:printDebug("Sort query : " + sortQuery.toJsonString());
+
     mongodb:Client mongoClient = checkpanic new (mongoConfig, mongodb.dbName);
-    log:printDebug("------------------ Querying Data -------------------");
-    map<json>[] jsonDevelopers = checkpanic mongoClient->find(mongodb.collection, (), ());
+
+    int totalCount = checkpanic mongoClient->countDocuments(mongodb.collection, (), searchQuery);
+    map<json>[] jsonDevelopers;
+
+    if (pageSize is int) {
+       jsonDevelopers  = checkpanic mongoClient->find(mongodb.collection, (), searchQuery, sortQuery, <int> pageSize);
+    } else {
+        jsonDevelopers = checkpanic mongoClient->find(mongodb.collection, (), searchQuery, sortQuery);
+    }
     mongoClient->close();
     
     model:Developer[] devList = [];
@@ -42,10 +57,13 @@ public function getDevelopers() returns model:Developers { // TODO |error
             log:printError(err.message());
         }
     }
+
+    int foundCount = devList.length();
+    boolean hasNext = utils:hasNext(totalCount, foundCount, page, pageSize);
     model:Developers developers = {
-        items: devList
+        items: devList,
+        hasNext: hasNext
     };
-    io:println(devList);
     return developers;
 }
 

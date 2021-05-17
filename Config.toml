@@ -11,4 +11,4 @@ dbName = "developer_db"
 collection = "developers"
 
 [ballerina.log]
-level = "DEBUG"
+level = "TRACE"
